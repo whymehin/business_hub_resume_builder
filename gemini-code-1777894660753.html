@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First Resume Builder | 我的第一份履歷</title>
+    <!-- html2pdf for generating PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --primary-light: #EBF3FC;
+            --primary-hover: #357ABD;
+            --secondary: #FF9F43;
+            --bg-color: #F4F7F6;
+            --card-bg: #FFFFFF;
+            --text-main: #2C3E50;
+            --text-muted: #7F8C8D;
+            --border-radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px 10px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Header & Lang Toggle */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .lang-toggle {
+            display: flex;
+            background: #e0e0e0;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .lang-btn {
+            border: none;
+            background: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Intro Section */
+        .intro-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .intro-characters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .char-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-light);
+            background-color: #f0f0f0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .intro-title {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        /* Form / Survey Styles */
+        .card {
+            background: var(--card-bg);
+            padding: 30px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            background: var(--primary-light);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary);
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        label span.emoji-icon {
+            margin-right: 8px;
+            font-size: 1.3rem;
+        }
+
+        .question-hint {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        input[type="text"], 
+        input[type="email"], 
+        input[type="tel"],
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-size: 16px; /* Prevents iOS zoom */
+            transition: var(--transition);
+            background: #ffffff;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #ffffff;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        /* Photo Upload Styling */
+        .photo-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .photo-preview {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        input[type="file"] {
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(74, 144, 226, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(74, 144, 226, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: var(--text-main);
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        /* Resume Preview Layout (A4 Proportions) */
+        #resume-preview-container {
+            display: none;
+        }
+
+        .resume-page {
+            background: white;
+            padding: 40px;
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            color: #333;
+            position: relative;
+        }
+
+        /* Improved Resume Header */
+        .res-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+        }
+
+        .res-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-light);
+            display: none; /* Hidden by default if no photo */
+        }
+
+        .res-header-text {
+            flex: 1;
+        }
+
+        .res-name { 
+            font-size: 2.8rem; 
+            font-weight: 800; 
+            margin-bottom: 5px; 
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+        
+        .res-contact { 
+            font-size: 1rem; 
+            color: #555; 
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .res-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Resume Body Layout */
+        .res-body {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .res-section { 
+            background: #FAFAFA;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .res-section-title {
+            font-size: 1.4rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 8px;
+        }
+        
+        .res-item-title { font-weight: 700; font-size: 1.15rem; color: var(--text-main); }
+        .res-item-desc { font-size: 1rem; margin-top: 8px; white-space: pre-wrap; line-height: 1.7; color: #444; }
+
+        @media (max-width: 600px) {
+            .resume-page { padding: 25px; min-height: auto; }
+            .res-header { flex-direction: column; text-align: center; gap: 15px; }
+            .res-name { font-size: 2.2rem; }
+            .res-contact { justify-content: center; }
+            .form-group { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="app-title">📝 Resume Builder</div>
+        <div class="lang-toggle">
+            <button class="lang-btn active" onclick="setLang('en')" id="btn-en">EN</button>
+            <button class="lang-btn" onclick="setLang('zh')" id="btn-zh">中文</button>
+        </div>
+    </header>
+
+    <!-- Survey Section -->
+    <div id="survey-section">
+        <div class="intro-card">
+            <div class="intro-characters">
+                <!-- TEACHER NOTE: Replace the src attributes below with the actual paths/URLs of the generated Jojo and Mia images -->
+                <img src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=Jojo&backgroundColor=b6e3f4" alt="Jojo the Sheep" class="char-img" id="img-jojo" title="Replace src with your Jojo image">
+                <img src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=Mia&backgroundColor=ffd5dc" alt="Mia the Cat" class="char-img" id="img-mia" title="Replace src with your Mia image">
+            </div>
+            <h3 class="intro-title" id="intro-title">Hi! We are Jojo & Mia!</h3>
+            <p id="intro-desc">Let's build your very first professional resume. Just answer the questions below, and we will make it look amazing!</p>
+        </div>
+
+        <div class="card">
+            
+            <div class="form-group">
+                <label id="lbl-photo"><span class="emoji-icon">📸</span> Take a selfie or upload a photo</label>
+                <span class="question-hint" id="hint-photo">A clear photo helps people remember you!</span>
+                <div class="photo-upload-wrapper">
+                    <div class="photo-preview">
+                        <span id="photo-placeholder-icon">👤</span>
+                        <img id="inp-photo-preview" src="" alt="Preview">
+                    </div>
+                    <!-- 'capture="user"' prompts the front-facing camera on mobile devices -->
+                    <input type="file" id="inp-photo" accept="image/*" capture="user" onchange="previewImage(event)">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-name"><span class="emoji-icon">👤</span> What is your full name?</label>
+                <input type="text" id="inp-name" placeholder="e.g. Chan Siu Ming, Peter">
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-contact"><span class="emoji-icon">📧</span> How can people contact you?</label>
+                <span class="question-hint" id="hint-contact">Email and Phone number</span>
+                <input type="email" id="inp-email" placeholder="Email (e.g. student@school.edu.mo)" style="margin-bottom: 10px;">
+                <input type="tel" id="inp-phone" placeholder="Phone (e.g. +853 6612 3456)">
+            </div>
+            
+            <div class="form-group">
+                <label id="lbl-edu"><span class="emoji-icon">🏫</span> Which school do you go to and what grade are you in?</label>
+                <input type="text" id="inp-school" placeholder="School Name" style="margin-bottom: 10px;">
+                <input type="text" id="inp-grade" placeholder="Grade / Form (e.g. Form 3 / Grade 9)">
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-bio"><span class="emoji-icon">✍️</span> Write a short sentence about yourself.</label>
+                <span class="question-hint" id="hint-bio">What kind of student are you? What are your goals?</span>
+                <textarea id="inp-bio" placeholder="I am a hardworking Grade 9 student who loves learning about business and technology..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-academic"><span class="emoji-icon">🎓</span> What are your top subjects or academic achievements?</label>
+                <span class="question-hint" id="hint-academic">E.g., Top in Math, Science Fair 1st Runner up</span>
+                <textarea id="inp-academic" placeholder="- Consistently scored A in Economics&#10;- Participated in Consumer Study Award"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-extra"><span class="emoji-icon">⚽</span> What clubs, sports, or activities do you join?</label>
+                <textarea id="inp-extra" placeholder="- Member of the School Debate Team&#10;- Organizer for 95th Anniversary Open Day Booth"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-volunteer"><span class="emoji-icon">🤝</span> Have you helped out in the community or at school?</label>
+                <textarea id="inp-volunteer" placeholder="- Student Ambassador for bank visit&#10;- Flag selling volunteer"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label id="lbl-skills"><span class="emoji-icon">⭐</span> What are you good at?</label>
+                <span class="question-hint" id="hint-skills">E.g. Video editing, speaking English/Mandarin, teamwork, using Canva</span>
+                <textarea id="inp-skills" placeholder="- Fluent in Cantonese, Mandarin, and English&#10;- Proficient in Canva and web design"></textarea>
+            </div>
+
+            <button class="btn-primary" onclick="generateResume()">
+                ✨ <span id="btn-gen-text">Generate My Resume</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Resume Preview Section -->
+    <div id="resume-preview-container">
+        <div class="card" style="background: transparent; box-shadow: none; padding: 0;">
+            <button class="btn-primary" onclick="downloadPDF()" style="margin-bottom: 10px;">
+                📥 <span id="btn-download-text">Download PDF</span>
+            </button>
+            <button class="btn-secondary" onclick="editResume()" style="margin-bottom: 20px;">
+                ✏️ <span id="btn-edit-text">Go Back & Edit</span>
+            </button>
+        </div>
+
+        <div class="resume-page" id="resume-document">
+            <div class="res-header">
+                <img id="out-photo" class="res-photo" src="" alt="Profile Photo">
+                <div class="res-header-text">
+                    <div class="res-name" id="out-name">Your Name</div>
+                    <div class="res-contact" id="out-contact">
+                        <!-- Contact info injected here via JS -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="res-body">
+                <div class="res-section" id="sec-bio" style="display:none;">
+                    <div class="res-section-title" id="out-title-bio">👤 About Me</div>
+                    <div class="res-item-desc" id="out-bio"></div>
+                </div>
+
+                <div class="res-section" id="sec-edu" style="display:none;">
+                    <div class="res-section-title" id="out-title-edu">🏫 Education</div>
+                    <div class="res-item-title" id="out-school">School Name</div>
+                    <div class="res-item-desc" id="out-grade">Grade</div>
+                </div>
+
+                <div class="res-section" id="sec-academic" style="display:none;">
+                    <div class="res-section-title" id="out-title-academic">🎓 Academic Achievements</div>
+                    <div class="res-item-desc" id="out-academic"></div>
+                </div>
+
+                <div class="res-section" id="sec-extra" style="display:none;">
+                    <div class="res-section-title" id="out-title-extra">⚽ Extracurricular Activities</div>
+                    <div class="res-item-desc" id="out-extra"></div>
+                </div>
+
+                <div class="res-section" id="sec-volunteer" style="display:none;">
+                    <div class="res-section-title" id="out-title-volunteer">🤝 Community Service</div>
+                    <div class="res-item-desc" id="out-volunteer"></div>
+                </div>
+
+                <div class="res-section" id="sec-skills" style="display:none;">
+                    <div class="res-section-title" id="out-title-skills">⭐ Skills & Strengths</div>
+                    <div class="res-item-desc" id="out-skills"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dictionary for localization
+    const i18n = {
+        en: {
+            introTitle: "Hi! We are Jojo & Mia!",
+            introDesc: "Let's build your very first professional resume. Just answer the questions below, and we will make it look amazing!",
+            lblPhoto: "Take a selfie or upload a photo",
+            hintPhoto: "A clear photo helps people remember you!",
+            lblName: "What is your full name?",
+            lblContact: "How can people contact you?",
+            hintContact: "Email and Phone number",
+            lblEdu: "Which school do you go to and what grade are you in?",
+            lblBio: "Write a short sentence about yourself.",
+            hintBio: "What kind of student are you? What are your goals?",
+            lblAcademic: "What are your top subjects or academic achievements?",
+            hintAcademic: "E.g., Top in Math, Science Fair 1st Runner up",
+            lblExtra: "What clubs, sports, or activities do you join?",
+            lblVolunteer: "Have you helped out in the community or at school?",
+            lblSkills: "What are you good at?",
+            hintSkills: "E.g. Video editing, speaking English/Mandarin, teamwork, using Canva",
+            btnGenText: "Generate My Resume",
+            btnDownloadText: "Download PDF",
+            btnEditText: "Go Back & Edit",
+            
+            // Output Titles (with emojis)
+            outTitleBio: "👤 About Me",
+            outTitleEdu: "🏫 Education",
+            outTitleAcademic: "🎓 Academic Achievements",
+            outTitleExtra: "⚽ Extracurricular Activities",
+            outTitleVolunteer: "🤝 Community Service & Volunteering",
+            outTitleSkills: "⭐ Skills & Strengths"
+        },
+        zh: {
+            introTitle: "你好！我們是 Jojo 和 Mia！",
+            introDesc: "一起來製作你的第一份專業履歷吧！只需要回答以下問題，我們就會為你設計出漂亮的履歷！",
+            lblPhoto: "自拍或上傳一張大頭貼",
+            hintPhoto: "一張清晰的照片能讓別人更容易記住你！",
+            lblName: "你的全名是甚麼？",
+            lblContact: "別人如何聯絡你？",
+            hintContact: "電子郵件與電話號碼",
+            lblEdu: "你就讀哪所學校？現在讀幾年級？",
+            lblBio: "用一句話介紹自己。",
+            hintBio: "你是一個怎樣的學生？你有甚麼學習目標？",
+            lblAcademic: "你最擅長的科目或學業成就是甚麼？",
+            hintAcademic: "例如：數學科全級第一、科學展覽亞軍",
+            lblExtra: "你參加了甚麼課外活動、運動或學會？",
+            lblVolunteer: "你有沒有參與過學校或社區的義工服務？",
+            lblSkills: "你有甚麼專長？",
+            hintSkills: "例如：影片剪輯、流利英普、團隊合作、使用 Canva",
+            btnGenText: "生成我的履歷",
+            btnDownloadText: "下載 PDF",
+            btnEditText: "返回修改",
+            
+            // Output Titles (with emojis)
+            outTitleBio: "👤 關於我",
+            outTitleEdu: "🏫 教育背景",
+            outTitleAcademic: "🎓 學業成就",
+            outTitleExtra: "⚽ 課外活動",
+            outTitleVolunteer: "🤝 義工與社會服務",
+            outTitleSkills: "⭐ 專長與技能"
+        }
+    };
+
+    let currentLang = 'en';
+    let uploadedImageBase64 = "";
+
+    function setLang(lang) {
+        currentLang = lang;
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+        
+        const texts = i18n[lang];
+        document.getElementById('intro-title').innerText = texts.introTitle;
+        document.getElementById('intro-desc').innerText = texts.introDesc;
+        
+        // Update Labels (keeping the emoji spans intact)
+        document.getElementById('lbl-photo').innerHTML = `<span class="emoji-icon">📸</span> ${texts.lblPhoto}`;
+        document.getElementById('hint-photo').innerText = texts.hintPhoto;
+        
+        document.getElementById('lbl-name').innerHTML = `<span class="emoji-icon">👤</span> ${texts.lblName}`;
+        document.getElementById('lbl-contact').innerHTML = `<span class="emoji-icon">📧</span> ${texts.lblContact}`;
+        document.getElementById('hint-contact').innerText = texts.hintContact;
+        
+        document.getElementById('lbl-edu').innerHTML = `<span class="emoji-icon">🏫</span> ${texts.lblEdu}`;
+        document.getElementById('lbl-bio').innerHTML = `<span class="emoji-icon">✍️</span> ${texts.lblBio}`;
+        document.getElementById('hint-bio').innerText = texts.hintBio;
+        
+        document.getElementById('lbl-academic').innerHTML = `<span class="emoji-icon">🎓</span> ${texts.lblAcademic}`;
+        document.getElementById('hint-academic').innerText = texts.hintAcademic;
+        
+        document.getElementById('lbl-extra').innerHTML = `<span class="emoji-icon">⚽</span> ${texts.lblExtra}`;
+        document.getElementById('lbl-volunteer').innerHTML = `<span class="emoji-icon">🤝</span> ${texts.lblVolunteer}`;
+        
+        document.getElementById('lbl-skills').innerHTML = `<span class="emoji-icon">⭐</span> ${texts.lblSkills}`;
+        document.getElementById('hint-skills').innerText = texts.hintSkills;
+        
+        document.getElementById('btn-gen-text').innerText = texts.btnGenText;
+        document.getElementById('btn-download-text').innerText = texts.btnDownloadText;
+        document.getElementById('btn-edit-text').innerText = texts.btnEditText;
+
+        document.getElementById('out-title-bio').innerText = texts.outTitleBio;
+        document.getElementById('out-title-edu').innerText = texts.outTitleEdu;
+        document.getElementById('out-title-academic').innerText = texts.outTitleAcademic;
+        document.getElementById('out-title-extra').innerText = texts.outTitleExtra;
+        document.getElementById('out-title-volunteer').innerText = texts.outTitleVolunteer;
+        document.getElementById('out-title-skills').innerText = texts.outTitleSkills;
+    }
+
+    // Handle Image Upload & Preview
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImageBase64 = e.target.result;
+                const previewImg = document.getElementById('inp-photo-preview');
+                previewImg.src = uploadedImageBase64;
+                previewImg.style.display = 'block';
+                document.getElementById('photo-placeholder-icon').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function generateResume() {
+        // Fetch values
+        const name = document.getElementById('inp-name').value.trim();
+        const email = document.getElementById('inp-email').value.trim();
+        const phone = document.getElementById('inp-phone').value.trim();
+        const school = document.getElementById('inp-school').value.trim();
+        const grade = document.getElementById('inp-grade').value.trim();
+        const bio = document.getElementById('inp-bio').value.trim();
+        const academic = document.getElementById('inp-academic').value.trim();
+        const extra = document.getElementById('inp-extra').value.trim();
+        const volunteer = document.getElementById('inp-volunteer').value.trim();
+        const skills = document.getElementById('inp-skills').value.trim();
+
+        // Populate Photo
+        const outPhoto = document.getElementById('out-photo');
+        if (uploadedImageBase64) {
+            outPhoto.src = uploadedImageBase64;
+            outPhoto.style.display = 'block';
+        } else {
+            outPhoto.style.display = 'none';
+        }
+
+        // Populate Header Info
+        document.getElementById('out-name').innerText = name || (currentLang === 'en' ? 'Your Name' : '你的名字');
+        
+        let contactHtml = "";
+        if(email) contactHtml += `<div class="res-contact-item">📧 ${email}</div>`;
+        if(phone) contactHtml += `<div class="res-contact-item">📱 ${phone}</div>`;
+        document.getElementById('out-contact').innerHTML = contactHtml;
+
+        // Toggle Sections based on input
+        toggleSection('sec-bio', 'out-bio', bio);
+        
+        // Education logic
+        const eduSection = document.getElementById('sec-edu');
+        if(school || grade) {
+            eduSection.style.display = 'block';
+            document.getElementById('out-school').innerText = school;
+            document.getElementById('out-grade').innerText = grade;
+        } else {
+            eduSection.style.display = 'none';
+        }
+
+        toggleSection('sec-academic', 'out-academic', academic);
+        toggleSection('sec-extra', 'out-extra', extra);
+        toggleSection('sec-volunteer', 'out-volunteer', volunteer);
+        toggleSection('sec-skills', 'out-skills', skills);
+
+        // Switch Views
+        document.getElementById('survey-section').style.display = 'none';
+        document.getElementById('resume-preview-container').style.display = 'block';
+        window.scrollTo(0,0);
+    }
+
+    function toggleSection(secId, outId, value) {
+        if(value) {
+            document.getElementById(secId).style.display = 'block';
+            document.getElementById(outId).innerText = value;
+        } else {
+            document.getElementById(secId).style.display = 'none';
+        }
+    }
+
+    function editResume() {
+        document.getElementById('resume-preview-container').style.display = 'none';
+        document.getElementById('survey-section').style.display = 'block';
+        window.scrollTo(0,0);
+    }
+
+    function downloadPDF() {
+        const element = document.getElementById('resume-document');
+        
+        // Briefly adjust padding for PDF layout if needed
+        element.style.boxShadow = 'none';
+        element.style.margin = '0';
+
+        const opt = {
+            margin:       [10, 0, 10, 0], // top, left, bottom, right margins in mm
+            filename:     'My_Resume.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Restore styles after generation
+            element.style.boxShadow = '0 0 20px rgba(0,0,0,0.1)';
+            element.style.margin = '0 auto';
+        });
+    }
+
+    // Initialize default language
+    setLang('en');
+</script>
+
+</body>
+</html>
